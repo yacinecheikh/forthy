@@ -90,7 +90,3 @@ def read_all(tokens):
 
 def parse(source: str):
     return read_all(tokenize(filter_comments(source)))
-
-
-source = "(head [cons(a, b) - a] 0 extract) define"
-print(parse(source))
