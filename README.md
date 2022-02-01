@@ -95,7 +95,7 @@ You can, of course, use complete type names, or even your own abbreviations, as 
 
 At its core, a linked list is either an empty list (which is written as () in forthy) or a cell containing a value and a sub list.
 
-In forthy, the empty list is just an empty struct (a memory block with a size of 0), and the cells are 2-slot memory cells.
+In forthy, the empty list is just an empty struct (a memory block with 0 slot), and the cells are 2-slot memory cells.
 Thus, lists can be manipulated the same way other memory cells are managed
 
 
@@ -105,11 +105,74 @@ By default, the only way to group data is by using a memory cell which can hold 
 
 This can be thought of as a simplification of structures. Any value, whether it is a string, or even a char, is manipulated by reference. This means you can store and retrieve any value from a cell.
 
-Cells are allocated using ```alloc [num - cell]```. Whether you want to initialize them or not is up to you, but I didn’t use raw memory access in this python implementation.
+The only specific aspects of cells is that they hold their slot count, meaning you can know their size at will.
+
+Cells are allocated using ```alloc [num - cell]```. Whether you want to initialize their slots or not is up to you.
 To modify the contents of the cells, the instructions you can use are ```store [cell n x - cell]``` and ```retrieve [cell n - cell x]```
 
 In languages that have manual memory management, you will need another instruction to free the cells: ```free [x - ]```
 This word is useless in managed languages, unless you want to implement your own memory model.
 But it is important in library code that can be used in other environments.
 
+
+### Expressing values
+
+As written above, in favor of easier implementation, this language has no literal.
+This means no string, no integer. Only comments, quotes, and a shortcut for quoted lists.
+
+For integers, I used quotes and interpreter code to evaluate literals.
+The syntax is:
+```
+```
+
+For strings, I usually find my way around using quotes. This works as long as I’m not using a lot of strings.
+
+
+However, you’re free to implement literals in your own implementation. *Forthy is but a base for thy own use.*
+
+If you have no knowledge of how to write parsing code, you can just write a hairy machine state with lots of nested ifs and chances are it will work. You can look at file parse.py for some examples.
+Or you can use a more sophisticated approach like parser combinators, parser generators,... The parser is the only thing you have to change, since there’s nothing else.
+
+
+### Storing values
+
+In a word definition, you can use a quoted list like ```(f word1 word2)``` and use the word ```define``` to store the list (word1 word2) into the global namespace under f.
+Now, what happens if you do not use a quote but a runtime value in the list ?
+If I write:
+```
+() 5 cons 'f cons
+define
+```
+f does not hold (5), but a list which contains the value created by writing 5
+When the word f is evaluated, the value of 5 is put on the stack.
+By automating this process, you can have this syntax:
+```
+5 'f set
+'f get
+```
+
+The words `get` and `set` are defined in the bootstrap library file
+
+
+### Builtin dictionary
+
+#### Core (0% implemented)
+- define [(word1 ...) - ]: stores ... under word1 in the dictionary
+- load [filename - ]: runs eval on the file
+
+#### Meta-programming (0% implemented)
+- eval
+- dictionary
+- stack
+
+#### Memory management (0% implemented)
+- alloc
+- free
+- store
+- retrieve
+- sizeof
+
+#### Variables (0% implemented)
+- set
+- get
 
